@@ -1,0 +1,8 @@
+{
+  "name": "Smart Kitchen Store",
+  "description": "Smart Kitchen Solutions for Everyday Life. A premium, modern e-commerce web application for kitchen products, complete with user profiles, shopping cart, order tracking, and an analytical admin dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

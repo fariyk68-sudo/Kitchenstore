@@ -1,0 +1,125 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Customer profiles including email, display name, role, wishlist, and shipping addresses",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Auth User ID" },
+        "email": { "type": "string", "description": "Email address" },
+        "displayName": { "type": "string", "description": "Full name" },
+        "photoURL": { "type": "string", "description": "Profile picture URL" },
+        "role": { "type": "string", "enum": ["customer", "admin"], "description": "User tier" },
+        "wishlist": { "type": "array", "description": "Array of product ID strings" },
+        "addresses": { "type": "array", "description": "Array of saved delivery address strings" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Kitchen products list detailing prices, stock, images, categories, and SKU values",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "salePrice": { "type": "number" },
+        "category": { "type": "string" },
+        "images": { "type": "array", "description": "URLs of product photos" },
+        "stockQuantity": { "type": "number" },
+        "sku": { "type": "string" },
+        "ratings": { "type": "number" },
+        "reviewsCount": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "draft", "out_of_stock"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "price", "category", "stockQuantity", "sku", "status", "createdAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Kitchen product categories like Cookware, Bakeware, Appliances",
+      "type": "object",
+      "properties": {
+        "categoryId": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["name", "slug"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer purchase transaction including line items, shipping address, status, and total",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string" },
+        "userId": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "customerName": { "type": "string" },
+        "items": { "type": "array" },
+        "totalAmount": { "type": "number" },
+        "shippingAddress": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "processing", "delivered", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "items", "totalAmount", "shippingAddress", "status", "createdAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Customer reviews of specific kitchen items",
+      "type": "object",
+      "properties": {
+        "reviewId": { "type": "string" },
+        "productId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productId", "userId", "rating", "comment", "createdAt"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Explicit security mappings for users authorized with admin roles",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Authorized Admin UID" },
+        "email": { "type": "string", "description": "Admin email" }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles. Access limited to owner and admins."
+    },
+    "products/{productId}": {
+      "schema": "Product",
+      "description": "E-commerce kitchen items details. Read public. Write admins."
+    },
+    "categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Kitchen item categories. Read public. Write admins."
+    },
+    "orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer orders. Users read/write theirs. Admins read/write all."
+    },
+    "reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Product ratings and reviews. Read public. Write authenticated matching users."
+    },
+    "admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Whitelisted administration IDs."
+    }
+  }
+}
