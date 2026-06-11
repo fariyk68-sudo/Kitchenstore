@@ -30,7 +30,7 @@ export default function AboutContactView({ view }: AboutContactViewProps) {
 
   if (view === 'about') {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans animate-fade-in space-y-20">
+      <div className="max-w-5xl mx-auto px-4 py-12 font-sans animate-fade-in space-y-20">
         
         {/* Intro Hero banner */}
         <section className="text-center max-w-2xl mx-auto space-y-4">
@@ -113,7 +113,7 @@ export default function AboutContactView({ view }: AboutContactViewProps) {
 
   // CONTACT FORM RENDERING
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans animate-fade-in space-y-12">
+    <div className="max-w-5xl mx-auto px-4 py-12 font-sans animate-fade-in space-y-12">
       
       <section className="text-center max-w-xl mx-auto space-y-3">
         <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-brand-500 bg-brand-50 border border-brand-100 px-3 py-1 rounded-full inline-block">
