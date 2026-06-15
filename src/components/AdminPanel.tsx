@@ -35,7 +35,7 @@ export default function AdminPanel() {
     logout
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'analytics' | 'products' | 'orders' | 'categories' | 'users'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'products' | 'orders' | 'inventory' | 'categories' | 'users'>('analytics');
   
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -446,42 +446,129 @@ export default function AdminPanel() {
         </div>
       </div>
 
-      {/* Tab Navigation buttons */}
-      <div className="flex flex-wrap gap-2 mb-8 bg-brand-50 border border-brand-100 p-1.5 rounded-2xl max-w-max">
-        <button
-          onClick={() => setActiveTab('analytics')}
-          className={`px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${activeTab === 'analytics' ? 'bg-white text-brand-900 shadow-xs' : 'text-brand-600 hover:text-brand-900'}`}
-        >
-          Overview Statistics
-        </button>
-        <button
-          onClick={() => setActiveTab('products')}
-          className={`px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${activeTab === 'products' ? 'bg-white text-brand-900 shadow-xs' : 'text-brand-600 hover:text-brand-900'}`}
-        >
-          Product Catalog ({products.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('orders')}
-          className={`px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${activeTab === 'orders' ? 'bg-white text-brand-900 shadow-xs' : 'text-brand-600 hover:text-brand-900'}`}
-        >
-          Order Control ({orders.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('categories')}
-          className={`px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${activeTab === 'categories' ? 'bg-white text-brand-900 shadow-xs' : 'text-brand-600 hover:text-brand-900'}`}
-        >
-          Categories Manager
-        </button>
-        <button
-          onClick={() => setActiveTab('users')}
-          className={`px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${activeTab === 'users' ? 'bg-white text-brand-900 shadow-xs' : 'text-brand-600 hover:text-brand-900'}`}
-        >
-          Member Base ({allUsers.length})
-        </button>
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Admin Sidebar Navigation */}
+        <div className="lg:col-span-3 bg-white border border-brand-100 rounded-3xl p-6 shadow-xs flex flex-col gap-6" id="admin_sidebar">
+          {/* Logo & Section Title */}
+          <div className="flex items-center gap-3 border-b border-brand-55 pb-5">
+            <div className="h-10 w-10 bg-brand-900 text-white rounded-xl flex items-center justify-center shrink-0 shadow-md">
+              <Package className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-brand-950 text-sm tracking-tight leading-tight">Kitchen Store</h3>
+              <span className="text-[10px] font-mono font-bold tracking-widest text-amber-500 uppercase">Management</span>
+            </div>
+          </div>
 
-      {/* Main Tab Panels */}
-      <AnimatePresence mode="wait">
+          {/* Logged in Admin Summary */}
+          <div className="bg-brand-50/50 border border-brand-100/60 rounded-2xl p-3 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-brand-900 text-white flex items-center justify-center font-black text-xs border border-brand-200">
+              {user?.email?.charAt(0).toUpperCase() || 'A'}
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-xs font-bold text-brand-900 truncate">{user?.email?.split('@')[0] || 'Administrator'}</p>
+              <span className="text-[9px] bg-amber-500/10 text-amber-600 font-bold tracking-wide px-1.5 py-0.2 rounded-full uppercase">Apex Clearance</span>
+            </div>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="flex flex-col gap-1" id="admin_sidebar_nav_links">
+            {/* Dashboard / Analytics */}
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-normal transition-all duration-200 cursor-pointer ${
+                activeTab === 'analytics'
+                  ? 'bg-brand-900 text-white shadow-md shadow-brand-900/10 scale-[1.01]'
+                  : 'text-brand-650 hover:bg-brand-50 hover:text-brand-900'
+              }`}
+            >
+              <TrendingUp className="h-4 w-4 shrink-0" />
+              <span>Overview Statistics</span>
+            </button>
+
+            {/* Product Catalog */}
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-normal transition-all duration-200 cursor-pointer ${
+                activeTab === 'products'
+                  ? 'bg-brand-900 text-white shadow-md shadow-brand-900/10 scale-[1.01]'
+                  : 'text-brand-650 hover:bg-brand-50 hover:text-brand-900'
+              }`}
+            >
+              <ShoppingBag className="h-4 w-4 shrink-0" />
+              <span>Product Catalog ({products.length})</span>
+            </button>
+
+            {/* Inventory Levels */}
+            <button
+              onClick={() => setActiveTab('inventory')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-normal transition-all duration-200 cursor-pointer ${
+                activeTab === 'inventory'
+                  ? 'bg-brand-900 text-white shadow-md shadow-brand-900/10 scale-[1.01]'
+                  : 'text-brand-650 hover:bg-brand-50 hover:text-brand-900'
+              }`}
+            >
+              <Package className="h-4 w-4 shrink-0" />
+              <span>Inventory Levels ({depletedProducts.length > 0 ? `${depletedProducts.length} Alert` : 'Healthy'})</span>
+            </button>
+
+            {/* Orders Tracker */}
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-normal transition-all duration-200 cursor-pointer ${
+                activeTab === 'orders'
+                  ? 'bg-brand-900 text-white shadow-md shadow-brand-900/10 scale-[1.01]'
+                  : 'text-brand-650 hover:bg-brand-50 hover:text-brand-900'
+              }`}
+            >
+              <ClipboardList className="h-4 w-4 shrink-0" />
+              <span>Order Control ({orders.length})</span>
+            </button>
+
+            {/* Categories */}
+            <button
+              onClick={() => setActiveTab('categories')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-normal transition-all duration-200 cursor-pointer ${
+                activeTab === 'categories'
+                  ? 'bg-brand-900 text-white shadow-md shadow-brand-900/10 scale-[1.01]'
+                  : 'text-brand-650 hover:bg-brand-50 hover:text-brand-900'
+              }`}
+            >
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>Categories Manager</span>
+            </button>
+
+            {/* Users / Members Base */}
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-normal transition-all duration-200 cursor-pointer ${
+                activeTab === 'users'
+                  ? 'bg-brand-900 text-white shadow-md shadow-brand-900/10 scale-[1.01]'
+                  : 'text-brand-650 hover:bg-brand-50 hover:text-brand-900'
+              }`}
+            >
+              <Users className="h-4 w-4 shrink-0" />
+              <span>Member Base ({allUsers.length})</span>
+            </button>
+          </nav>
+
+          {/* Log out section button */}
+          <div className="border-t border-brand-50 pt-5 mt-auto">
+            <button
+              onClick={() => logout()}
+              id="admin_sidebar_logout_btn"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-red-650 hover:bg-red-50 hover:text-red-700 transition-all duration-200 cursor-pointer"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              <span>Exit Console</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Workbench Panel Area */}
+        <div className="lg:col-span-9 flex flex-col gap-6">
+          {/* Main Tab Panels */}
+          <AnimatePresence mode="wait">
         {activeTab === 'analytics' && (
           <motion.div
             key="analytics"
@@ -819,6 +906,234 @@ export default function AdminPanel() {
           </motion.div>
         )}
 
+        {activeTab === 'inventory' && (
+          <motion.div
+            key="inventory"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={tabVariants}
+            className="bg-white border border-brand-100 rounded-3xl overflow-hidden shadow-xs font-sans animate-fade-in"
+          >
+            <div className="p-6 border-b border-brand-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h4 className="font-bold text-brand-950 text-base">Comprehensive Inventory Levels</h4>
+                <p className="text-xs text-brand-400 mt-0.5">Rapid replenishment controls, stock levels monitoring, and direct bulk updates.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`inline-block h-2 w-2 rounded-full ${depletedProducts.length > 0 ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></span>
+                <span className="text-[10px] font-mono font-bold uppercase text-brand-500">
+                  {depletedProducts.length > 0 ? `${depletedProducts.length} restock alerts` : 'Stock Levels Healthy'}
+                </span>
+              </div>
+            </div>
+
+            {/* Inventory KPI Grid */}
+            <div className="p-6 bg-brand-50/40 border-b border-brand-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white border border-brand-100/85 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-brand-400 block">Catalog Depth</span>
+                  <span className="text-2xl font-bold font-mono text-brand-950 mt-1 block">{products.length} Items</span>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-brand-50 text-brand-650 flex items-center justify-center shrink-0">
+                  <ShoppingBag className="h-5 w-5" />
+                </div>
+              </div>
+
+              <div className="bg-white border border-brand-100/85 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-amber-500 block">Low Stock Alert (≤ 5)</span>
+                  <span className="text-2xl font-bold font-mono text-amber-950 mt-1 block">{products.filter(p => p.stockQuantity > 0 && p.stockQuantity <= 5).length} SKUs</span>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="h-5 w-5 animate-bounce" />
+                </div>
+              </div>
+
+              <div className="bg-white border border-brand-100/85 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-red-500 block">Depleted / Sold Out (0)</span>
+                  <span className="text-2xl font-bold font-mono text-red-950 mt-1 block">{products.filter(p => p.stockQuantity <= 0).length} SKUs</span>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                  <XCircle className="h-5 w-5" />
+                </div>
+              </div>
+            </div>
+
+            {/* Sub-Filters and controls */}
+            <div className="p-6 border-b border-brand-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+              <div className="relative flex-1 max-w-sm">
+                <input
+                  type="text"
+                  placeholder="Filter inventory by title or SKU..."
+                  value={productSearch}
+                  onChange={(e) => setProductSearch(e.target.value)}
+                  className="w-full bg-brand-50 border border-brand-100 rounded-xl py-2 pl-9 pr-4 text-xs font-sans text-brand-950 placeholder-brand-400 focus:outline-hidden focus:border-brand-500"
+                />
+                <Search className="absolute left-3.5 top-2.5 h-3.5 w-3.5 text-brand-400" />
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="lowStockOnly"
+                    checked={categoryFilter === 'LowStockAlert'}
+                    onChange={(e) => setCategoryFilter(e.target.checked ? 'LowStockAlert' : 'All')}
+                    className="h-4 w-4 text-brand-900 border-brand-200 rounded-md focus:ring-brand-500 cursor-pointer"
+                  />
+                  <label htmlFor="lowStockOnly" className="text-xs font-semibold text-brand-700 cursor-pointer select-none">
+                    Show Low Stock Warning Only
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Inventory table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse font-sans">
+                <thead>
+                  <tr className="bg-brand-50/30 border-b border-brand-100 uppercase font-mono tracking-wider text-brand-400 font-bold text-[10px]">
+                    <th className="py-4 px-6">Product Info & Status</th>
+                    <th className="py-4 px-6">SKU Code</th>
+                    <th className="py-4 px-6 text-center">Stock Level</th>
+                    <th className="py-4 px-6 text-right">Quick Restock Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-brand-50">
+                  {products
+                    .filter(p => {
+                      const matchesSearch = p.name.toLowerCase().includes(productSearch.toLowerCase()) || p.sku.toLowerCase().includes(productSearch.toLowerCase());
+                      const matchesLow = categoryFilter !== 'LowStockAlert' || p.stockQuantity <= 5;
+                      return matchesSearch && matchesLow;
+                    })
+                    .map((p) => {
+                      const isLow = p.stockQuantity <= 5;
+                      const isSoldOut = p.stockQuantity <= 0;
+                      return (
+                        <tr key={p.productId} className="hover:bg-brand-50/20 transition-colors">
+                          <td className="py-4 px-6 flex items-center gap-3">
+                            <img
+                              src={p.images[0]}
+                              alt=""
+                              className="h-10 w-10 object-cover rounded-md border border-brand-100"
+                              referrerPolicy="no-referrer"
+                            />
+                            <div>
+                              <p className="font-bold text-brand-950 truncate max-w-[220px]">{p.name}</p>
+                              <span className={`inline-block px-1.5 py-0.2 text-[9px] font-mono font-bold rounded-full mt-1 ${
+                                isSoldOut ? 'bg-red-50 text-red-700 border border-red-150' : 
+                                isLow ? 'bg-amber-50 text-amber-700 border border-amber-150 animate-pulse' : 
+                                'bg-emerald-50 text-emerald-700 border border-emerald-150'
+                              }`}>
+                                {isSoldOut ? 'Sold Out / Depleted' : isLow ? 'Low Stock' : 'Optimized'}
+                              </span>
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-6 font-mono text-brand-500 font-medium">{p.sku}</td>
+
+                          <td className="py-4 px-6 text-center">
+                            {inlineStockId === p.productId ? (
+                              <div className="flex items-center justify-center gap-1">
+                                <input
+                                  type="number"
+                                  value={inlineStockVal}
+                                  onChange={(e) => setInlineStockVal(Number(e.target.value))}
+                                  className="bg-brand-50 border border-brand-200 rounded px-1.5 py-0.5 w-14 text-center font-mono focus:outline-hidden"
+                                />
+                                <button
+                                  onClick={() => submitInlineStock(p.productId)}
+                                  className="p-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded cursor-pointer animate-pulse"
+                                >
+                                  <Check className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center gap-1.5 group">
+                                <span className={`font-black font-sans text-sm ${isSoldOut ? 'text-red-500' : isLow ? 'text-amber-500' : 'text-brand-950'}`}>
+                                  {p.stockQuantity}
+                                </span>
+                                <button
+                                  onClick={() => { setInlineStockId(p.productId); setInlineStockVal(p.stockQuantity); }}
+                                  className="hidden group-hover:block p-1 text-brand-400 hover:text-brand-900 cursor-pointer"
+                                  title="Edit Numerically"
+                                >
+                                  <Edit2 className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+                          </td>
+
+                          <td className="py-4 px-6 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              {/* Add 5 units */}
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    const nextStock = p.stockQuantity + 5;
+                                    await adminEditProduct(p.productId, { stockQuantity: nextStock, status: 'active' });
+                                    triggerToast(`Restocked +5 units of ${p.sku}`, 'success');
+                                  } catch {
+                                    triggerToast(`Failed restock`, 'error');
+                                  }
+                                }}
+                                className="px-2.5 py-1 bg-brand-50 border border-brand-100 hover:bg-brand-100 hover:border-brand-200 text-brand-700 text-[10px] font-bold font-mono rounded cursor-pointer"
+                              >
+                                +5 Units
+                              </button>
+
+                              {/* Restore 20 units */}
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    const nextStock = p.stockQuantity + 20;
+                                    await adminEditProduct(p.productId, { stockQuantity: nextStock, status: 'active' });
+                                    triggerToast(`Restocked +20 units of ${p.sku}`, 'success');
+                                  } catch {
+                                    triggerToast(`Failed restock`, 'error');
+                                  }
+                                }}
+                                className="px-2.5 py-1 bg-amber-50 border border-amber-100 hover:bg-amber-100 hover:border-amber-200 text-amber-900 text-[10px] font-bold font-mono rounded cursor-pointer"
+                              >
+                                +20 Units
+                              </button>
+
+                              {/* Deplete button (Set 0) */}
+                              <button
+                                onClick={async () => {
+                                  if (confirm(`Deplete all inventory stock of SKU ${p.sku}?`)) {
+                                    try {
+                                      await adminEditProduct(p.productId, { stockQuantity: 0, status: 'out_of_stock' });
+                                      triggerToast(`Depleted inventory stock to 0`, 'success');
+                                    } catch {
+                                      triggerToast(`Failed depletion`, 'error');
+                                    }
+                                  }
+                                }}
+                                className="p-1 px-2 border border-red-100 hover:bg-red-50 text-red-500 hover:text-red-650 text-[10px] font-semibold rounded cursor-pointer"
+                              >
+                                Set Empty
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  {products.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="py-12 text-center text-brand-400">
+                        No products loaded inside the database.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        )}
+
         {activeTab === 'orders' && (
           <motion.div
             key="orders"
@@ -1093,6 +1408,8 @@ export default function AdminPanel() {
           </motion.div>
         )}
       </AnimatePresence>
+        </div> {/* Closes Workbench Panel Area */}
+      </div> {/* Closes Grid wrapper */}
 
       {/* Fully Configured ADD / EDIT Product Modal */}
       {showProductModal && (

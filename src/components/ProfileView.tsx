@@ -31,6 +31,7 @@ export default function ProfileView({ setView, setSelectedProductId }: ProfileVi
   const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'amount_desc' | 'amount_asc'>('date_desc');
   const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({});
   const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<'orders' | 'wishlist' | 'addresses'>('orders');
   
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -151,14 +152,52 @@ export default function ProfileView({ setView, setSelectedProductId }: ProfileVi
 
       </section>
 
+      {/* 2. Responsive Dashboard Sections Tab Switcher */}
+      <div className="flex border-b border-brand-100 gap-1 overflow-x-auto pb-0.5" id="profile_nav_tabs_list">
+        <button
+          onClick={() => setActiveSection('orders')}
+          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            activeSection === 'orders'
+              ? 'border-brand-900 text-brand-950 font-bold font-sans'
+              : 'border-transparent text-brand-400 hover:text-brand-900 font-medium font-sans'
+          }`}
+          id="tab_trigger_orders"
+        >
+          <Clock className="h-4 w-4" />
+          My Orders ({orders.length})
+        </button>
+        <button
+          onClick={() => setActiveSection('wishlist')}
+          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            activeSection === 'wishlist'
+              ? 'border-brand-900 text-brand-950 font-bold font-sans'
+              : 'border-transparent text-brand-400 hover:text-brand-900 font-medium font-sans'
+          }`}
+          id="tab_trigger_wishlist"
+        >
+          <Heart className="h-4 w-4 text-rose-500 fill-rose-500" />
+          My Wishlist ({wishlistItems.length})
+        </button>
+        <button
+          onClick={() => setActiveSection('addresses')}
+          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+            activeSection === 'addresses'
+              ? 'border-brand-900 text-brand-950 font-bold font-sans'
+              : 'border-transparent text-brand-400 hover:text-brand-900 font-medium font-sans'
+          }`}
+          id="tab_trigger_addresses"
+        >
+          <MapPin className="h-4 w-4 text-indigo-500" />
+          Saved Addresses ({userProfile?.addresses?.length || 0})
+        </button>
+      </div>
+
       {/* Main Grid layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+      <div className="space-y-4">
         
-        {/* Left Column: Address Book & Wishlist (1/3) */}
-        <div className="lg:col-span-1 space-y-8">
-          
-          {/* Address Book management */}
-          <div className="bg-white border border-brand-100 p-6 rounded-3xl shadow-xs space-y-4">
+        {/* Address Book panel */}
+        {activeSection === 'addresses' && (
+          <div className="bg-white border border-brand-100 p-6 rounded-3xl shadow-xs space-y-4 max-w-3xl mx-auto text-left animate-scale-up" id="profile_addresses_panel">
             <h3 className="font-bold text-brand-950 text-sm uppercase tracking-wider font-mono flex items-center gap-2">
               <MapPin className="h-4.5 w-4.5 text-brand-400" />
               My Saved Addresses
@@ -181,66 +220,79 @@ export default function ProfileView({ setView, setSelectedProductId }: ProfileVi
               </button>
             </form>
 
-            <div className="space-y-2 max-h-48 overflow-y-auto">
+            <div className="space-y-2 max-h-80 overflow-y-auto">
               {userProfile?.addresses?.map((addr, idx) => (
-                <div key={idx} className="flex justify-between items-center bg-brand-50/50 border border-brand-100 rounded-xl py-2 px-3.5 text-xs text-brand-800">
-                  <span className="truncate max-w-[200px]" title={addr}>{addr}</span>
+                <div key={idx} className="flex justify-between items-center bg-brand-50/50 border border-brand-100 rounded-xl py-2.5 px-3.5 text-xs text-brand-800 hover:border-brand-200 transition-all">
+                  <span className="truncate max-w-[450px]" title={addr}>{addr}</span>
                   <button
                     onClick={() => removeAddress(addr)}
                     className="p-1 hover:text-red-500 cursor-pointer"
                     title="Delete saved address"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               ))}
               {(!userProfile?.addresses || userProfile.addresses.length === 0) && (
-                <p className="text-center text-brand-400 text-xs py-4">No shipping addresses saved yet.</p>
+                <p className="text-center text-brand-400 text-xs py-8">No shipping addresses saved yet.</p>
               )}
             </div>
           </div>
+        )}
 
-          {/* Bookmarked Wishlist */}
-          <div className="bg-white border border-brand-100 p-6 rounded-3xl shadow-xs space-y-4">
+        {/* Bookmarked Wishlist panel */}
+        {activeSection === 'wishlist' && (
+          <div className="bg-white border border-brand-100 p-6 rounded-3xl shadow-xs space-y-6 max-w-5xl mx-auto text-left animate-scale-up" id="profile_wishlist_panel">
             <h3 className="font-bold text-brand-950 text-sm uppercase tracking-wider font-mono flex items-center gap-2">
               <Heart className="h-4.5 w-4.5 text-yellow-500 fill-yellow-500" />
               Favorited Culinary Gear ({wishlistItems.length})
             </h3>
 
-            <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-h-[500px] overflow-y-auto pr-1">
               {wishlistItems.map((item) => (
-                <div key={item.productId} className="flex justify-between items-center gap-2 border-b border-brand-50 pb-3 last:border-0">
-                  <div 
-                    className="flex gap-2.5 items-center cursor-pointer group"
-                    onClick={() => handleProductSelect(item.productId)}
-                  >
-                    <img src={item.images[0]} alt="" className="h-10 w-10 object-cover rounded-lg border border-brand-150" />
-                    <div className="max-w-[140px]">
-                      <p className="font-bold text-brand-900 text-xs truncate group-hover:text-brand-600 transition-colors leading-tight">{item.name}</p>
-                      <p className="text-[10px] text-brand-500 font-mono mt-0.5">Rs. {(item.salePrice ?? item.price).toLocaleString()}</p>
+                <div 
+                  key={item.productId} 
+                  className="group bg-white border border-brand-100 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-350 flex flex-col h-full cursor-pointer relative"
+                  onClick={() => handleProductSelect(item.productId)}
+                >
+                  <div className="aspect-square w-full bg-brand-50 overflow-hidden relative">
+                    <img src={item.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500" referrerPolicy="no-referrer" />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleWishlist(item.productId); }}
+                      className="absolute top-2.5 right-2.5 p-1.5 bg-white/95 text-red-500 rounded-full transition-all hover:scale-105 shadow-3xs"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="p-4 flex flex-col flex-grow text-left">
+                    <span className="text-[9px] font-mono uppercase tracking-wider text-brand-400 bg-brand-50 px-2 py-0.5 rounded-full w-max mb-1.5">{item.category}</span>
+                    <h4 className="font-bold text-brand-950 text-xs sm:text-sm line-clamp-2 leading-tight flex-grow">{item.name}</h4>
+                    <div className="mt-3 pt-2.5 border-t border-brand-50 flex items-center justify-between">
+                      <span className="font-bold text-xs text-brand-950">Rs. {(item.salePrice ?? item.price).toLocaleString()}</span>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleProductSelect(item.productId); }}
+                        className="bg-brand-900 hover:bg-brand-800 text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-lg font-semibold"
+                      >
+                        Buy Now
+                      </button>
                     </div>
                   </div>
-
-                  <button
-                    onClick={() => toggleWishlist(item.productId)}
-                    className="p-2 text-brand-400 hover:text-red-500 rounded-lg"
-                    title="Remove Bookmark"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
                 </div>
               ))}
-
-              {wishlistItems.length === 0 && (
-                <p className="text-center text-brand-400 text-xs py-8">Your wishlist holds no bookmarks.</p>
-              )}
             </div>
+
+            {wishlistItems.length === 0 && (
+              <div className="text-center py-16 text-brand-450 border border-dashed border-brand-200 rounded-3xl bg-white/50 space-y-3">
+                <Heart className="h-10 w-10 text-brand-300 mx-auto" />
+                <p className="text-xs">Your wishlist holds no bookmarks yet.</p>
+              </div>
+            )}
           </div>
+        )}
 
-        </div>
-
-        {/* Right Column: Order Transactions history ledger (2/3) */}
-        <div className="lg:col-span-2 bg-white border border-brand-100 p-6 sm:p-8 rounded-3xl shadow-xs space-y-6">
+        {/* Right Column: Order Transactions history ledger */}
+        {activeSection === 'orders' && (
+          <div className="bg-white border border-brand-100 p-6 sm:p-8 rounded-3xl shadow-xs space-y-6 animate-scale-up" id="profile_orders_panel">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="text-left">
               <h3 className="font-bold text-brand-950 text-base uppercase tracking-wider font-mono flex items-center gap-2">
@@ -687,6 +739,7 @@ export default function ProfileView({ setView, setSelectedProductId }: ProfileVi
           </div>
 
         </div>
+        )}
 
       </div>
 

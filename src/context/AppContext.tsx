@@ -159,7 +159,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
               });
             }
           } catch (err) {
-            handleFirestoreError(err, OperationType.WRITE, `users/${firebaseUser.uid}`);
+            console.error('Graceful recovery from Firestore user creation failure:', err);
+            // Fallback to local session representation to prevent fatal crash
+            setUserProfile(newProfile);
+            setIsAdmin(isBootstrapAdmin);
           }
         }
       } else {
@@ -171,6 +174,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     return () => unsubscribe();
   }, []);
+
+  const seedingInProgress = React.useRef(false);
 
   // Real-time Database Sync (and auto-seeding if completely empty)
   useEffect(() => {
@@ -191,11 +196,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setProducts(items);
 
       // Seed if products is completely empty
-      if (snapshot.empty && !storeLoading) {
-        triggerAutoSeeding();
+      if (snapshot.empty && !seedingInProgress.current) {
+        seedingInProgress.current = true;
+        triggerAutoSeeding().finally(() => {
+          seedingInProgress.current = false;
+        });
       }
+      setStoreLoading(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'products');
+      console.warn("Products read subscription warning: ", error);
+      setStoreLoading(false);
     });
 
     const unsubCategories = onSnapshot(collection(db, 'categories'), (snapshot) => {
@@ -205,7 +215,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
       setCategories(items);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'categories');
+      console.warn("Categories read subscription warning: ", error);
     });
 
     const unsubReviews = onSnapshot(collection(db, 'reviews'), (snapshot) => {
@@ -215,17 +225,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
       setReviews(items);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'reviews');
+      console.warn("Reviews read subscription warning: ", error);
     });
-
-    setStoreLoading(false);
 
     return () => {
       unsubProducts();
       unsubCategories();
       unsubReviews();
     };
-  }, [storeLoading]);
+  }, []);
 
   // Real-time Orders Sync based on role
   useEffect(() => {

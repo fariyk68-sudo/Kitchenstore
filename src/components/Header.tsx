@@ -19,7 +19,8 @@ export default function Header({
   searchQuery,
   setSearchQuery
 }: HeaderProps) {
-  const { user, userProfile, isAdmin, cartCount, wishlist = [] } = useApp();
+  const { user, userProfile, isAdmin, cartCount } = useApp();
+  const wishlist = userProfile?.wishlist || [];
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const { logout } = useApp();
@@ -126,6 +127,30 @@ export default function Header({
             >
               Contact
             </button>
+            {user && (
+              <button 
+                onClick={() => handleNav('profile')} 
+                className={`relative py-1 cursor-pointer transition-colors duration-300 hover:text-brand-800 ${
+                  currentView === 'profile' 
+                    ? 'text-brand-950 font-semibold after:scale-x-100' 
+                    : 'text-brand-600 font-medium after:scale-x-0'
+                } after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-brand-600 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100`}
+              >
+                Track Orders
+              </button>
+            )}
+            {user && isAdmin && (
+              <button 
+                onClick={() => handleNav('admin')} 
+                className={`relative py-1 cursor-pointer transition-colors duration-300 hover:text-brand-800 ${
+                  currentView === 'admin' 
+                    ? 'text-brand-950 font-semibold after:scale-x-100' 
+                    : 'text-brand-600 font-medium after:scale-x-0'
+                } after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-brand-600 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100`}
+              >
+                Admin Panel
+              </button>
+            )}
           </nav>
 
           {/* User Operations */}
@@ -192,13 +217,23 @@ export default function Header({
                       
                       <button
                         onClick={() => { handleNav('profile'); setShowUserDropdown(false); }}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-brand-700 hover:bg-brand-50 transition-colors"
+                        className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-brand-700 hover:bg-brand-50 transition-colors font-medium border-b border-brand-50"
                       >
                         <User className="h-4 w-4 text-brand-400" />
-                        My Account (Orders)
+                        My Account & Orders
                       </button>
 
-                      <div className="border-t border-brand-50 my-1"></div>
+                      {isAdmin && (
+                        <button
+                          onClick={() => { handleNav('admin'); setShowUserDropdown(false); }}
+                          className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-amber-700 hover:bg-amber-50 transition-colors font-semibold border-b border-amber-100"
+                        >
+                          <LayoutDashboard className="h-4 w-4 text-amber-500" />
+                          Admin Panel
+                        </button>
+                      )}
+
+                      <div className="my-1"></div>
                       <button
                         onClick={() => { logout(); setShowUserDropdown(false); handleNav('home'); }}
                         className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -270,6 +305,30 @@ export default function Header({
             >
               <Mail className="h-5 w-5 text-brand-400" /> Contact
             </button>
+            {user && (
+              <button 
+                onClick={() => handleNav('profile')} 
+                className={`flex items-center gap-2 text-left py-2 border-b border-brand-50 ${currentView === 'profile' ? 'text-brand-950 font-bold' : ''}`}
+              >
+                <User className="h-5 w-5 text-brand-400" /> Track Orders
+              </button>
+            )}
+            {user && isAdmin && (
+              <button 
+                onClick={() => handleNav('admin')} 
+                className={`flex items-center gap-2 text-left py-2 border-b border-brand-50 text-amber-700 ${currentView === 'admin' ? 'text-amber-800 font-bold' : ''}`}
+              >
+                <LayoutDashboard className="h-5 w-5 text-amber-500" /> Admin Panel
+              </button>
+            )}
+            {user && (
+              <button 
+                onClick={() => { logout(); setMobileMenuOpen(false); handleNav('home'); }}
+                className="flex items-center gap-2 text-left py-2 border-b border-brand-50 text-red-600 font-medium"
+              >
+                <LogOut className="h-5 w-5 text-red-500" /> Sign Out
+              </button>
+            )}
           </div>
         </div>
       )}
